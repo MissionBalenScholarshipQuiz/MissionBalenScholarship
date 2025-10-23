@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -93,10 +94,7 @@
             { day: 3, subject: "English", title: "Grammar Essentials", link: "https://ganeshdahal-hue.github.io/english/", isPremium: false },
             { day: 4, subject: "GK", title: "World Geography", link: "https://ganeshdahal-hue.github.io/GK/", isPremium: false },
             { day: 5, subject: "Science", title: "Physics Fundamentals", link: "https://ganeshdahal-hue.github.io/physic/", isPremium: false },
-            { day: 6, subject: "Math", title: "Geometry Challenge", link: "https://ganeshdahal-hue.github.io/mathematic/", isPremium: false },
-            { day: 7, subject: "English", title: "Vocabulary Boost", link: "https://ganeshdahal-hue.github.io/english-set/", isPremium: false },
-            { day: 8, subject: "GK", title: "History Trivia", link: "https://ganeshdahal-hue.github.io/GKK-/", isPremium: false },
-            { day: 9, subject: "Science", title: "Biology Essentials", link: "https://ganeshdahal-hue.github.io/chemistry/", isPremium: true },
+            
              { day: 36, subject: "Scholarship", title: "Scholarship Mastery", link: "https://ganeshdahal-hue.github.io/balenscholarships/", isPremium: true }
         ],
       quizzes: {
@@ -608,10 +606,12 @@
 
     // Profile Component
 // Enhanced Profile Section with Beautiful Achievement Display
-const ProfileSection = ({ userStats, completedQuizzes, unlockedAchievements, onClose }) => {
+// Enhanced Profile Section with Certificate Downloads
+const ProfileSection = ({ userStats, completedQuizzes, unlockedAchievements, onClose, onShowPremiumCert, onShowCompletionCert }) => {
     const [userPhoto, setUserPhoto] = useState(userStats.photo || '');
     const [showPhotoUpload, setShowPhotoUpload] = useState(false);
     const [activeTab, setActiveTab] = useState('overview');
+    const [showCertificateModal, setShowCertificateModal] = useState(null); // 'premium' or 'completion'
     
     const handlePhotoUpload = (e) => {
         const file = e.target.files[0];
@@ -632,7 +632,9 @@ const ProfileSection = ({ userStats, completedQuizzes, unlockedAchievements, onC
     const completedCount = Object.keys(completedQuizzes).length;
     const totalQuizzes = DATA.dailyQuizzes.length;
     const progressPercentage = Math.round((completedCount / totalQuizzes) * 100);
-    
+    const isCourseCompleted = completedCount === totalQuizzes;
+    const isPremium = localStorage.getItem('balenPremiumUnlocked') === 'true';
+
     // Achievement data with descriptions and unlock conditions
     const achievementDetails = {
         'FIRST_QUIZ': { 
@@ -697,8 +699,147 @@ const ProfileSection = ({ userStats, completedQuizzes, unlockedAchievements, onC
     const xpProgress = (xpInLevel / DATA.XP_PER_LEVEL) * 100;
     const xpToNextLevel = DATA.XP_PER_LEVEL - xpInLevel;
 
+    // Certificate Download Functions
+    const handleDownloadCertificate = (type) => {
+        if (type === 'premium' && isPremium) {
+            setShowCertificateModal('premium');
+        } else if (type === 'completion' && isCourseCompleted) {
+            setShowCertificateModal('completion');
+        }
+    };
+
+   // In the ProfileSection component, update the certificate section to use the new design:
+
+const CertificateDownloadSection = () => (
+    <div className="bg-gradient-to-br from-amber-900/30 to-yellow-900/30 backdrop-blur-xl rounded-3xl p-6 border border-amber-500/30 shadow-2xl">
+        <h4 className="text-2xl font-bold text-amber-400 mb-6 flex items-center">
+            <i className="fas fa-award mr-3 animate-pulse"></i>
+            Your Certificates
+        </h4>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Premium Certificate */}
+            <div className={`relative p-6 rounded-2xl backdrop-blur-sm border-2 transition-all duration-500 transform hover:scale-105 ${
+                isPremium 
+                    ? 'bg-gradient-to-br from-amber-500/20 to-yellow-500/20 border-amber-500/50 shadow-2xl shadow-amber-500/25 animate-glow cursor-pointer'
+                    : 'bg-white/5 border-white/10 grayscale opacity-60'
+            }`} onClick={() => isPremium && setShowCertificateModal('premium')}>
+                <div className="text-center">
+                    <div className="inline-flex items-center justify-center w-16 h-16 bg-amber-500/20 rounded-2xl mb-4">
+                        <i className="fas fa-crown text-2xl text-amber-400"></i>
+                    </div>
+                    <h5 className="text-xl font-bold text-white mb-2">Premium Certificate</h5>
+                    <p className="text-white/70 text-sm mb-4">
+                        Official certificate for premium membership
+                    </p>
+                    {isPremium ? (
+                        <div className="bg-amber-500/20 text-amber-300 py-2 px-4 rounded-full text-sm font-semibold backdrop-blur-sm">
+                            <i className="fas fa-download mr-2"></i>
+                            Download Available
+                        </div>
+                    ) : (
+                        <div className="bg-white/10 text-white/40 py-2 px-4 rounded-full text-sm font-semibold">
+                            <i className="fas fa-lock mr-2"></i>
+                            Premium Required
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            {/* Course Completion Certificate */}
+   // In the CertificateDownloadSection component, update the completion certificate card:
+<div 
+    className={`relative p-4 rounded-xl border-2 transition-all duration-300 transform hover:scale-105 cursor-pointer ${
+        isCourseCompleted 
+            ? 'bg-green-500/20 border-green-500/50 shadow-lg' 
+            : 'bg-white/5 border-white/10 opacity-60'
+    }`} 
+    onClick={() => isCourseCompleted && setShowCertificateModal('completion')}
+>
+    <div className="text-center">
+        <div className="inline-flex items-center justify-center w-12 h-12 bg-green-500/20 rounded-xl mb-3">
+            <i className="fas fa-graduation-cap text-green-400"></i>
+        </div>
+        <h5 className="text-lg font-bold text-white mb-1">Course Completion</h5>
+        <p className="text-white/70 text-xs mb-3">
+            Professional certificate
+        </p>
+        {isCourseCompleted ? (
+            <div className="bg-green-500/30 text-green-300 py-1 px-3 rounded-full text-xs font-semibold">
+                <i className="fas fa-download mr-1"></i>
+                Download Available
+            </div>
+        ) : (
+            <div className="bg-white/10 text-white/40 py-1 px-3 rounded-full text-xs">
+                {completedCount}/{totalQuizzes} Quizzes
+            </div>
+        )}
+    </div>
+</div>
+        </div>
+
+        {/* Progress Info */}
+        {!isCourseCompleted && (
+            <div className="mt-6 p-4 bg-white/5 rounded-2xl backdrop-blur-sm">
+                <div className="flex items-center justify-between mb-2">
+                    <span className="text-white/70">Course Progress</span>
+                    <span className="text-green-400 font-semibold">{progressPercentage}%</span>
+                </div>
+                <div className="w-full bg-white/20 rounded-full h-2">
+                    <div 
+                        className="bg-gradient-to-r from-green-500 to-emerald-500 h-2 rounded-full transition-all duration-1000 ease-out"
+                        style={{ width: `${progressPercentage}%` }}
+                    ></div>
+                </div>
+                <p className="text-white/60 text-sm mt-2 text-center">
+                    Complete {totalQuizzes - completedCount} more quizzes to earn your certificate!
+                </p>
+            </div>
+        )}
+    </div>
+);
+
     return (
         <section id="profile" className="py-8 px-4 md:px-8 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 min-h-screen relative overflow-hidden">
+            {/* Certificate Modals */}
+// Inside the ProfileSection return statement, add these modals:
+{showCertificateModal === 'premium' && (
+    <PremiumCertificate 
+        userName={userStats.name} 
+        onDownload={() => {
+            const element = document.getElementById('certificate');
+            if(element) {
+                html2canvas(element, {backgroundColor: '#1e293b', useCORS: true}).then(canvas => {
+                    const link = document.createElement('a');
+                    link.download = `Premium_Certificate_${userStats.name}.png`;
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+                });
+            }
+            setShowCertificateModal(null);
+        }}
+        onClose={() => setShowCertificateModal(null)}
+    />
+)}
+
+{showCertificateModal === 'completion' && (
+    <CompletionCertificate 
+        userName={userStats.name} 
+        onDownload={() => {
+            const element = document.getElementById('completion-certificate');
+            if(element) {
+                html2canvas(element, {backgroundColor: '#ffffff', useCORS: true}).then(canvas => {
+                    const link = document.createElement('a');
+                    link.download = `Course_Completion_Certificate_${userStats.name}.png`;
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+                });
+            }
+            setShowCertificateModal(null);
+        }}
+        onClose={() => setShowCertificateModal(null)}
+    />
+)}
             {/* Animated Background Elements */}
             <div className="absolute inset-0 overflow-hidden">
                 <div className="absolute -top-40 -right-32 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
@@ -774,6 +915,12 @@ const ProfileSection = ({ userStats, completedQuizzes, unlockedAchievements, onC
                                     <i className="fas fa-trophy text-amber-400"></i>
                                     <span className="text-white font-semibold">Level {userLevel}</span>
                                 </div>
+                                {isPremium && (
+                                    <div className="flex items-center gap-2 bg-amber-500/20 px-4 py-2 rounded-full backdrop-blur-sm border border-amber-500/50">
+                                        <i className="fas fa-crown text-amber-400"></i>
+                                        <span className="text-amber-300 font-semibold">PREMIUM</span>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -795,7 +942,7 @@ const ProfileSection = ({ userStats, completedQuizzes, unlockedAchievements, onC
 
                 {/* Navigation Tabs */}
                 <div className="flex flex-wrap gap-2 mb-8 justify-center">
-                    {['overview', 'achievements', 'progress', 'stats'].map(tab => (
+                    {['overview', 'achievements', 'certificates', 'progress', 'stats'].map(tab => (
                         <button
                             key={tab}
                             onClick={() => setActiveTab(tab)}
@@ -805,6 +952,17 @@ const ProfileSection = ({ userStats, completedQuizzes, unlockedAchievements, onC
                                     : 'bg-white/10 text-white/70 hover:bg-white/20 backdrop-blur-sm'
                             }`}
                         >
+                            {tab === 'certificates' ? (
+                                <i className="fas fa-award mr-2"></i>
+                            ) : tab === 'achievements' ? (
+                                <i className="fas fa-trophy mr-2"></i>
+                            ) : tab === 'progress' ? (
+                                <i className="fas fa-chart-line mr-2"></i>
+                            ) : tab === 'stats' ? (
+                                <i className="fas fa-chart-bar mr-2"></i>
+                            ) : (
+                                <i className="fas fa-home mr-2"></i>
+                            )}
                             {tab}
                         </button>
                     ))}
@@ -835,40 +993,82 @@ const ProfileSection = ({ userStats, completedQuizzes, unlockedAchievements, onC
                                         <span className="text-white/80">Current Streak</span>
                                         <span className="text-2xl font-bold text-orange-400">{userStats.streak} days 🔥</span>
                                     </div>
+                                    <div className="flex justify-between items-center p-4 bg-white/5 rounded-2xl backdrop-blur-sm">
+                                        <span className="text-white/80">Certificates</span>
+                                        <span className="text-2xl font-bold text-amber-400">
+                                            {(isPremium ? 1 : 0) + (isCourseCompleted ? 1 : 0)}/2
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
 
-                            {/* Recent Activity Preview */}
+                            {/* Certificate Preview */}
                             <div className="bg-gradient-to-br from-slate-800/50 to-purple-900/50 backdrop-blur-xl rounded-3xl p-6 border border-white/10 shadow-2xl">
                                 <h4 className="text-2xl font-bold text-purple-400 mb-6 flex items-center">
-                                    <i className="fas fa-bolt mr-3"></i>
-                                    Recent Highlights
+                                    <i className="fas fa-award mr-3"></i>
+                                    Certificates
                                 </h4>
-                                <div className="space-y-3">
-                                    {Object.keys(unlockedAchievements).slice(0, 3).map(achievementId => {
-                                        const achievement = DATA.achievementsList[achievementId];
-                                        const details = achievementDetails[achievementId];
-                                        return (
-                                            <div 
-                                                key={achievementId}
-                                                className="flex items-center gap-4 p-3 bg-white/5 rounded-xl backdrop-blur-sm transform hover:scale-105 transition-transform duration-300"
-                                            >
-                                                <div className={`p-3 rounded-xl bg-gradient-to-r ${details.color} shadow-lg ${details.glow}`}>
-                                                    <i className={`${achievement.icon} ${details.iconColor} text-xl`}></i>
-                                                </div>
-                                                <div>
-                                                    <p className="text-white font-semibold">{achievement.title}</p>
-                                                    <p className="text-white/60 text-sm">{details.description}</p>
-                                                </div>
+                                <div className="space-y-4">
+                                    {/* Premium Certificate Preview */}
+                                    <div 
+                                        className={`flex items-center justify-between p-4 rounded-2xl backdrop-blur-sm cursor-pointer transform hover:scale-105 transition-transform duration-300 ${
+                                            isPremium 
+                                                ? 'bg-amber-500/20 border border-amber-500/50' 
+                                                : 'bg-white/5 border border-white/10 opacity-60'
+                                        }`}
+                                        onClick={() => handleDownloadCertificate('premium')}
+                                    >
+                                        <div className="flex items-center gap-3">
+                                            <div className={`p-3 rounded-xl ${
+                                                isPremium ? 'bg-amber-500/30' : 'bg-white/10'
+                                            }`}>
+                                                <i className={`fas fa-crown ${isPremium ? 'text-amber-400' : 'text-white/40'}`}></i>
                                             </div>
-                                        );
-                                    })}
-                                    {Object.keys(unlockedAchievements).length === 0 && (
-                                        <p className="text-white/60 text-center py-4">No achievements yet. Start completing quizzes to earn them!</p>
-                                    )}
+                                            <div>
+                                                <p className={`font-semibold ${isPremium ? 'text-white' : 'text-white/60'}`}>
+                                                    Premium Certificate
+                                                </p>
+                                                <p className={`text-sm ${isPremium ? 'text-amber-300' : 'text-white/40'}`}>
+                                                    {isPremium ? 'Download available' : 'Premium required'}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <i className={`fas fa-chevron-right ${isPremium ? 'text-amber-400' : 'text-white/40'}`}></i>
+                                    </div>
+
+                                    {/* Completion Certificate Preview */}
+                                    <div 
+                                        className={`flex items-center justify-between p-4 rounded-2xl backdrop-blur-sm cursor-pointer transform hover:scale-105 transition-transform duration-300 ${
+                                            isCourseCompleted 
+                                                ? 'bg-green-500/20 border border-green-500/50' 
+                                                : 'bg-white/5 border border-white/10 opacity-60'
+                                        }`}
+                                        onClick={() => handleDownloadCertificate('completion')}
+                                    >
+                                        <div className="flex items-center gap-3">
+                                            <div className={`p-3 rounded-xl ${
+                                                isCourseCompleted ? 'bg-green-500/30' : 'bg-white/10'
+                                            }`}>
+                                                <i className={`fas fa-graduation-cap ${isCourseCompleted ? 'text-green-400' : 'text-white/40'}`}></i>
+                                            </div>
+                                            <div>
+                                                <p className={`font-semibold ${isCourseCompleted ? 'text-white' : 'text-white/60'}`}>
+                                                    Course Completion
+                                                </p>
+                                                <p className={`text-sm ${isCourseCompleted ? 'text-green-300' : 'text-white/40'}`}>
+                                                    {isCourseCompleted ? 'Download available' : `${completedCount}/${totalQuizzes} quizzes`}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <i className={`fas fa-chevron-right ${isCourseCompleted ? 'text-green-400' : 'text-white/40'}`}></i>
+                                    </div>
                                 </div>
                             </div>
                         </div>
+                    )}
+
+                    {activeTab === 'certificates' && (
+                        <CertificateDownloadSection />
                     )}
 
                     {activeTab === 'achievements' && (
@@ -1004,39 +1204,44 @@ const ProfileSection = ({ userStats, completedQuizzes, unlockedAchievements, onC
                                     <div className="text-center text-white/60">
                                         {progressPercentage}% Complete • {totalQuizzes - completedCount} remaining
                                     </div>
+                                    {isCourseCompleted && (
+                                        <div className="text-center p-4 bg-green-500/20 rounded-2xl border border-green-500/50">
+                                            <i className="fas fa-check-circle text-green-400 text-2xl mb-2"></i>
+                                            <p className="text-green-300 font-semibold">Course Completed!</p>
+                                            <p className="text-green-200 text-sm">You can download your certificate</p>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
 
-                            {/* Streak Progress */}
-                            <div className="bg-gradient-to-br from-slate-800/50 to-orange-900/50 backdrop-blur-xl rounded-3xl p-6 border border-white/10 shadow-2xl">
-                                <h4 className="text-2xl font-bold text-orange-400 mb-6 flex items-center">
-                                    <i className="fas fa-fire mr-3 animate-pulse"></i>
-                                    Streak Progress
+                            {/* Certificate Progress */}
+                            <div className="bg-gradient-to-br from-slate-800/50 to-amber-900/50 backdrop-blur-xl rounded-3xl p-6 border border-white/10 shadow-2xl">
+                                <h4 className="text-2xl font-bold text-amber-400 mb-6 flex items-center">
+                                    <i className="fas fa-award mr-3"></i>
+                                    Certificate Progress
                                 </h4>
                                 <div className="space-y-6">
-                                    <div className="text-center">
-                                        <div className="text-5xl font-bold text-orange-400 mb-2">{userStats.streak}</div>
-                                        <div className="text-white/60">Current Streak</div>
-                                    </div>
-                                    <div className="grid grid-cols-3 gap-2">
-                                        {[7, 14, 30].map(days => (
-                                            <div 
-                                                key={days}
-                                                className={`text-center p-3 rounded-xl backdrop-blur-sm ${
-                                                    userStats.streak >= days 
-                                                        ? 'bg-orange-500/20 border border-orange-500/50' 
-                                                        : 'bg-white/5'
-                                                }`}
-                                            >
-                                                <div className={`text-lg font-bold ${
-                                                    userStats.streak >= days ? 'text-orange-400' : 'text-white/40'
-                                                }`}>
-                                                    {days} days
-                                                </div>
-                                                <div className="text-xs text-white/60">Streak</div>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="text-center p-4 bg-amber-500/20 rounded-2xl border border-amber-500/50">
+                                            <div className="text-2xl font-bold text-amber-400 mb-1">
+                                                {isPremium ? '1' : '0'}/1
                                             </div>
-                                        ))}
+                                            <div className="text-amber-300 text-sm">Premium</div>
+                                        </div>
+                                        <div className="text-center p-4 bg-green-500/20 rounded-2xl border border-green-500/50">
+                                            <div className="text-2xl font-bold text-green-400 mb-1">
+                                                {isCourseCompleted ? '1' : '0'}/1
+                                            </div>
+                                            <div className="text-green-300 text-sm">Completion</div>
+                                        </div>
                                     </div>
+                                    <div className="text-center">
+                                        <div className="text-3xl font-bold text-white mb-2">
+                                            {(isPremium ? 1 : 0) + (isCourseCompleted ? 1 : 0)}/2
+                                        </div>
+                                        <div className="text-white/60">Certificates Earned</div>
+                                    </div>
+                                    <CertificateDownloadSection />
                                 </div>
                             </div>
                         </div>
@@ -1075,11 +1280,11 @@ const ProfileSection = ({ userStats, completedQuizzes, unlockedAchievements, onC
                                     <div className="text-white/60">Achievements</div>
                                 </div>
                                 <div className="text-center p-6 bg-white/5 rounded-2xl backdrop-blur-sm transform hover:scale-105 transition-transform duration-300">
-                                    <i className="fas fa-percentage text-3xl text-blue-400 mb-3"></i>
+                                    <i className="fas fa-award text-3xl text-blue-400 mb-3"></i>
                                     <div className="text-2xl font-bold text-white">
-                                        {Math.round((Object.keys(unlockedAchievements).length / Object.keys(DATA.achievementsList).length) * 100)}%
+                                        {(isPremium ? 1 : 0) + (isCourseCompleted ? 1 : 0)}
                                     </div>
-                                    <div className="text-white/60">Completion</div>
+                                    <div className="text-white/60">Certificates</div>
                                 </div>
                             </div>
                         </div>
@@ -1115,6 +1320,7 @@ const ProfileSection = ({ userStats, completedQuizzes, unlockedAchievements, onC
         </section>
     );
 };
+
     // =================================================================================
     // ===== PAGE SECTIONS =====
     // =================================================================================
@@ -2482,8 +2688,11 @@ const ProfileSection = ({ userStats, completedQuizzes, unlockedAchievements, onC
     const VideosSection = () => ( <section id="videos" className="py-12 px-4 md:px-8 bg-gray-50 dark:bg-slate-800"><div className="container mx-auto"><h2 className="text-4xl font-extrabold text-center text-red-500 dark:text-red-400 mb-10 animate-fadeIn">Informative Videos</h2><div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">{DATA.videos.map((video, idx) => (<div key={idx} className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-lg card-hover animate-slideInUp" style={{animationDelay: `${idx*100}ms`}}><h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3 flex items-start"><i className="fab fa-youtube text-red-500 mr-3 mt-1"></i><span>{video.title}</span></h3><a href={video.link} target="_blank" rel="noopener noreferrer" className="inline-block gradient-button text-white font-bold py-2 px-4 rounded-full shadow-md text-sm">Watch Video <i className="fas fa-play-circle ml-2"></i></a></div>))}</div></div></section> );
     const NoticeSection = ({ onAcknowledgeNotice }) => { useEffect(() => { onAcknowledgeNotice(); }, []); const typeColors = { Announcement: "border-blue-500", Update: "border-green-500", Important: "border-red-500" }; const typeIcons = { Announcement: "fas fa-bullhorn text-blue-500", Update: "fas fa-info-circle text-green-500", Important: "fas fa-exclamation-triangle text-red-500" }; return ( <section id="notices" className="py-12 px-4 md:px-8 bg-gray-50 dark:bg-slate-800"><div className="container mx-auto"><h2 className="text-4xl font-extrabold text-center text-red-500 dark:text-red-400 mb-10 animate-fadeIn">Portal Notices</h2><div className="space-y-6 max-w-4xl mx-auto">{DATA.notices.filter(n => !n.isCompulsory).map((notice, index) => (<div key={notice.id} className={`bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-lg border-l-4 card-hover animate-slideInUp ${typeColors[notice.type] || 'border-gray-500'}`} style={{ animationDelay: `${index * 100}ms` }}><div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2"><div className="flex items-center gap-3"><i className={`${typeIcons[notice.type] || 'fas fa-info-circle'} text-xl`}></i><h3 className="text-xl font-bold">{notice.title}</h3></div><p className="text-sm font-semibold text-gray-500 dark:text-gray-400 mt-2 sm:mt-0">{notice.date}</p></div><p className="mt-2 text-base leading-relaxed text-gray-600 dark:text-gray-300" dangerouslySetInnerHTML={{__html: notice.content}}></p></div>))}</div></div></section> ); };
     const FAQsSection = () => { const [open, setOpen] = useState(null); const [searchTerm, setSearchTerm] = useState(''); const filteredFaqs = useMemo(() => { if (!searchTerm.trim()) return DATA.faqs; const lowercasedFilter = searchTerm.toLowerCase(); return DATA.faqs.map(category => ({ ...category, items: category.items.filter(item => { const questionMatches = item.question.toLowerCase().includes(lowercasedFilter); let answerMatches = false; if (typeof item.answer === 'string') { answerMatches = item.answer.toLowerCase().includes(lowercasedFilter); } return questionMatches || answerMatches; }) })).filter(category => category.items.length > 0); }, [searchTerm]); return ( <section id="faqs" className="py-12 px-4 md:px-8 bg-gray-50 dark:bg-slate-800"><div className="container mx-auto"><h2 className="text-4xl font-extrabold text-center text-red-500 dark:text-red-400 mb-10 animate-fadeIn">Frequently Asked Questions</h2><div className="max-w-4xl mx-auto mb-8 relative"><i className="fas fa-search absolute left-5 top-1/2 -translate-y-1/2 text-gray-400"></i><input type="text" placeholder="Search for a question..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="w-full pl-12 pr-4 py-3 rounded-full border-2 border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition" /></div>{filteredFaqs.length > 0 ? filteredFaqs.map((cat, ci) => (<div key={ci} className="mb-8 max-w-4xl mx-auto"><h3 className="text-3xl font-bold text-indigo-700 dark:text-indigo-300 mb-6 border-b-2 border-indigo-200 dark:border-indigo-800 pb-2">{cat.category}</h3><div className="space-y-4">{cat.items.map((f, fi) => (<div key={fi} className="bg-white dark:bg-slate-900 rounded-2xl shadow-lg card-hover"><button className="flex justify-between items-center w-full text-left text-lg font-semibold text-gray-900 dark:text-white p-6" onClick={() => setOpen(open === `${ci}-${fi}` ? null : `${ci}-${fi}`)}><span>{f.question}</span><i className={`fas ${open === `${ci}-${fi}` ? 'fa-chevron-up' : 'fa-chevron-down'} text-indigo-500 transition-transform duration-300`}></i></button>{open === `${ci}-${fi}` && (<div className="px-6 pb-6 text-gray-700 dark:text-gray-300 leading-relaxed animate-fadeIn">{f.answer}</div>)}</div>))}</div></div>)) : (<div className="text-center py-10 max-w-4xl mx-auto"><p className="text-xl font-semibold text-gray-700 dark:text-gray-300">No questions found matching your search.</p><p className="text-gray-500 mt-2">Please try a different keyword.</p></div>)}</div></section> ); };
-    const PremiumCertificate = ({ userName, onDownload }) => { const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }); const fixedLogoUrl = "https://i.ibb.co/3zdP15p/balen-logo-final.jpg"; return ( <div className="overlay"> <div className="modal-box bg-white dark:bg-slate-900 max-w-3xl w-full p-2 md:p-4"> <div id="certificate" className="bg-slate-900 text-gray-200 p-8 rounded-lg relative overflow-hidden shadow-2xl border-2 border-amber-400/30"> <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(255,255,255,0.1)_0%,_rgba(255,255,255,0)_70%)]"></div> <div className="relative z-10"> <div className="flex justify-between items-center pb-4 border-b-2 border-amber-400/50"> <div className="flex items-center gap-4"> <img src={fixedLogoUrl} alt="Portal Logo" className="h-16 w-16 rounded-full object-cover border-2 border-amber-300" /> <div> <h2 className="font-bold text-xl text-white tracking-wide">Balen Scholarship</h2> <p className="text-sm text-gray-400">Official Prep Portal</p> </div> </div> <div className="text-right"> <i className="fas fa-star text-3xl text-amber-400"></i> <p className="font-semibold text-amber-400 uppercase tracking-wider text-sm mt-1">Premium Member</p> </div> </div> <div className="text-center my-12"> <p className="text-lg text-gray-400">This certifies that</p> <h1 className="font-serif text-5xl md:text-6xl font-extrabold my-4 text-white"> {userName} </h1> <p className="text-lg text-gray-300">has been granted full <span className="font-bold text-amber-400">Premium Access</span> to all exclusive resources, quizzes, and features of the portal.</p> </div> <div className="flex justify-between items-end mt-12 pt-4 border-t-2 border-amber-400/50"> <div className="text-left"> <svg className="w-24 h-24 p-1 bg-white rounded-md" viewBox="0 0 256 256"> <path d="M128 256a128 128 0 100-256 128 128 0 000 256zM88 64v32H56V64h32zm112 0v32h-32V64h32zM88 128v-32H56v32h32zm32-32v32h-32v-32h32zm80 0v32h-32v-32h32zm-80 80v-32h-32v32h32zm-32-32v32H56v-32h32zm112 32v-32h-32v32h32zM88 192v-32H56v32h32zm32 0v32H88v-32h32zm-32 32v32H56v-32h32zm80-80v-32h-32v32h32zm-32 32v32h-32v-32h32zm32 32v-32h-32v32h32z" fill="#334155"/> </svg> <p className="text-xs text-gray-500 mt-1">Verification ID: BS-P-{userName.slice(0,2).toUpperCase()}2024</p> </div> <div className="text-center"> <p className="font-script text-4xl text-gray-100">Ganesh Dahal</p> <hr className="w-full border-t border-amber-400/50 mt-1" /> <p className="text-sm text-gray-400 mt-1">Portal Creator</p> <p className="text-xs text-gray-500">Issued on: {date}</p> </div> </div> </div> </div> <div className="text-center"> <button onClick={onDownload} className="gradient-button text-white font-bold py-3 px-8 rounded-full shadow-lg text-lg mt-6">Download Certificate</button> </div> </div> </div> ); };
-    const CompletionCertificate = ({ userName, onDownload }) => { const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }); const fixedLogoUrl = "https://i.ibb.co/3zdP15p/balen-logo-final.jpg"; const goldSealUrl = "https://i.ibb.co/T0f0d3j/gold-seal-embossed.png"; return ( <div className="overlay"> <div className="modal-box bg-white dark:bg-slate-900 max-w-5xl w-full p-6 md:p-10"> <div id="completion-certificate" className="relative bg-white text-slate-800 px-12 py-16 shadow-2xl overflow-hidden font-serif rounded-lg"> <div className="absolute inset-0 z-0"> <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" preserveAspectRatio="none" className="w-full h-full"> <path d="M0,120 C300,240 900,0 1200,120 L1200,800 L0,800 Z" fill="#ff7e29" opacity="0.85" /> <path d="M0,240 C300,360 900,120 1200,240 L1200,800 L0,800 Z" fill="#ffa31a" opacity="0.85" /> </svg> </div> <div className="relative z-10 text-center flex flex-col items-center space-y-6"> <img src={fixedLogoUrl} alt="Logo" className="h-24 w-24 rounded-full object-cover border-4 border-white shadow-md" /> <h1 className="font-serif text-4xl md:text-5xl font-bold text-slate-900 tracking-wider uppercase"> Certificate of Completion </h1> <p className="text-lg md:text-xl text-slate-600 font-sans"> Balen Scholarship Preparatory Program </p> <p className="mt-6 text-xl text-slate-600 font-sans italic"> This acknowledges that </p> <p className="font-[cursive] text-5xl md:text-7xl font-bold text-slate-900 tracking-wide leading-tight break-words px-4"> {userName} </p> <div className="max-w-3xl mx-auto text-center font-sans text-base md:text-lg text-slate-700 leading-relaxed px-4"> <p> has successfully completed the <strong>Balen Scholarship Preparatory Program</strong>. </p> <p className="mt-3"> Your dedication, perseverance, and commitment to learning are highly commendable. May this achievement inspire greater success in the future. </p> </div> <div className="flex flex-col md:flex-row justify-between items-center mt-14 w-full max-w-4xl mx-auto gap-y-10 md:gap-y-0"> <div className="text-center"> <p className="font-[cursive] text-3xl md:text-4xl text-slate-900 -mb-1">Ganesh Dahal</p> <hr className="w-52 md:w-64 border-t-2 border-slate-500/70 mx-auto" /> <p className="text-sm text-slate-600 mt-1 font-sans tracking-widest">PROGRAM DIRECTOR</p> </div> <div className="text-center"> <p className="font-sans font-semibold text-base md:text-lg text-slate-800">{date}</p> <hr className="w-52 md:w-64 border-t-2 border-slate-500/70 mx-auto" /> <p className="text-sm text-slate-600 mt-1 font-sans tracking-widest">AWARDED ON</p> </div> </div> <img src={goldSealUrl} alt="Official Seal" className="absolute bottom-10 right-10 w-28 md:w-32 h-28 md:h-32 z-20 drop-shadow-xl" /> </div> </div> <div className="text-center"> <button onClick={() => onDownload('completion-certificate')} className="bg-gradient-to-r from-orange-600 to-yellow-500 text-white font-bold py-3 px-10 rounded-full shadow-lg text-lg mt-6 hover:scale-105 transition-transform" > Download Certificate </button> </div> </div> </div> ); };
+const PremiumCertificate = ({ userName, onDownload, onClose }) => { const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }); const portalLogo = "https://raw.githubusercontent.com/ganeshdahal-HUE/practicece/6684a6cfa40eda8be7402689857a23575f0b723a/494645815_122099085086862980_1698079942897814974_n.jpg"; const handleDownload = () => { setTimeout(() => { const element = document.getElementById('premium-certificate'); if (element) { html2canvas(element, { scale: 2, useCORS: true }).then(canvas => { const link = document.createElement('a'); link.download = `Premium_Certificate_${userName}.png`; link.href = canvas.toDataURL(); document.body.appendChild(link); link.click(); document.body.removeChild(link); }); } }, 500); }; return ( <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-2" onClick={onClose}> <div className="bg-white rounded-xl max-w-full w-full mx-2 h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}> <div className="flex justify-between items-center p-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-t-xl sticky top-0 z-10"> <h3 className="text-base font-bold">👑 Premium Certificate</h3> <button onClick={onClose} className="bg-white text-purple-600 rounded-full w-7 h-7 flex items-center justify-center font-bold">×</button> </div> <div className="p-3 bg-gradient-to-br from-purple-50 to-blue-50"> <div id="premium-certificate" className="bg-gradient-to-br from-purple-100 via-white to-blue-100 border-4 border-purple-400 rounded-lg p-4 shadow-2xl min-h-[400px] relative"> <div className="absolute top-2 right-2 text-yellow-500 text-lg">⭐</div> <div className="absolute bottom-2 left-2 text-yellow-500 text-lg">💎</div> <div className="text-center"> <div className="mb-4"> <div className="relative inline-block"> <img src={portalLogo} alt="Logo" className="h-16 w-16 rounded-full border-4 border-yellow-400 mx-auto mb-2 shadow-lg"/> <div className="absolute -top-1 -right-1 bg-yellow-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs">👑</div> </div> <h1 className="text-xl font-bold text-purple-800">BALEN SCHOLARSHIP</h1> <p className="text-purple-600 font-semibold text-sm">PREMIUM MEMBER</p> </div> <div className="my-4 border-y-2 border-purple-300 py-3 bg-white/50 rounded"> <h2 className="text-2xl font-bold text-purple-900">PREMIUM CERTIFICATE</h2> <p className="text-purple-700 font-semibold text-sm">Exclusive Membership</p> </div> <div className="my-4"> <p className="text-purple-600 mb-3">This prestigious certificate awards</p> <h3 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 text-white py-3 px-6 rounded-lg mb-3 shadow-lg border-2 border-white/50">{userName}</h3> <div className="w-32 h-1 bg-gradient-to-r from-purple-500 to-blue-500 mx-auto mb-3 rounded-full"></div> </div> <div className="max-w-full mx-auto mb-4 bg-white/70 p-3 rounded-lg"> <p className="text-purple-700 text-sm">with <strong>Full Premium Access</strong> to all exclusive resources, unlimited quizzes, and premium features of the Balen Scholarship Portal.</p> </div> <div className="mt-6 pt-4 border-t border-purple-300"> <div className="flex justify-between"> <div className="text-center"> <div className="w-24 h-1 bg-purple-600 mx-auto mb-1 rounded-full"></div> <p className="font-bold text-purple-800 text-sm">Ganesh Dahal</p> <p className="text-xs text-purple-600">Ganesh Dahal (Chairman)</p> </div> <div className="text-center"> <div className="w-24 h-1 bg-purple-600 mx-auto mb-1 rounded-full"></div> <p className="font-bold text-purple-800 text-sm">{date}</p> <p className="text-xs text-purple-600">Membership Date</p> </div> </div> </div> <div className="mt-4 p-2 bg-yellow-100 border border-yellow-300 rounded"> <p className="text-xs text-yellow-800 text-center">🔒 Lifetime Premium Access • 📚 Unlimited Resources • 🎯 Priority Support</p> </div> </div> </div> </div> <div className="p-3 bg-gradient-to-r from-purple-500 to-blue-500 sticky bottom-0"> <div className="flex flex-col gap-2"> <button onClick={handleDownload} className="bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center gap-2 shadow-lg"> <i className="fas fa-crown"></i> DOWNLOAD PREMIUM CERTIFICATE </button> <button onClick={onClose} className="bg-white/20 hover:bg-white/30 text-white font-bold py-3 px-4 rounded-lg border border-white/30"> CLOSE </button> </div> </div> </div> </div> ); };
+const CompletionCertificate = ({ userName, onDownload, onClose }) => { const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }); const portalLogo = "https://raw.githubusercontent.com/ganeshdahal-HUE/practicece/6684a6cfa40eda8be7402689857a23575f0b723a/494645815_122099085086862980_1698079942897814974_n.jpg"; const handleDownload = () => { setTimeout(() => { const element = document.getElementById('completion-certificate'); if (element) { html2canvas(element, { scale: 2, useCORS: true }).then(canvas => { const link = document.createElement('a'); link.download = `Certificate_${userName}.png`; link.href = canvas.toDataURL(); document.body.appendChild(link); link.click(); document.body.removeChild(link); }); } }, 500); }; return ( <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-2" onClick={onClose}> <div className="bg-white rounded-xl max-w-full w-full mx-2 h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}> <div className="flex justify-between items-center p-3 bg-amber-500 text-white rounded-t-xl sticky top-0 z-10"> <h3 className="text-base font-bold">🎓 Certificate</h3> <button onClick={onClose} className="bg-white text-amber-600 rounded-full w-7 h-7 flex items-center justify-center font-bold">×</button> </div> <div className="p-3 bg-gray-50"> <div id="completion-certificate" className="bg-white border-4 border-amber-300 rounded-lg p-4 shadow-lg min-h-[400px]"> <div className="text-center"> <div className="mb-4"> <img src={portalLogo} alt="Logo" className="h-14 w-14 rounded-full border-4 border-amber-300 mx-auto mb-2"/> <h1 className="text-xl font-bold text-amber-800">BALEN SCHOLARSHIP</h1> <p className="text-amber-600 font-semibold text-sm">Preparatory Program</p> </div> <div className="my-4 border-y-2 border-amber-200 py-3"> <h2 className="text-2xl font-bold text-amber-900">CERTIFICATE OF COMPLETION</h2> </div> <div className="my-4"> <p className="text-gray-600 mb-3">This is to certify that</p> <h3 className="text-2xl font-bold text-amber-800 mb-3">{userName}</h3> <div className="w-32 h-1 bg-amber-500 mx-auto mb-3"></div> </div> <div className="max-w-full mx-auto mb-4"> <p className="text-gray-700 text-sm">has successfully completed the <strong>Balen Scholarship Preparatory Program</strong> with excellent dedication and academic performance.</p> </div> <div className="mt-6 pt-4 border-t border-amber-200"> <div className="flex justify-between"> <div className="text-center"> <div className="w-24 h-1 bg-amber-600 mx-auto mb-1"></div> <p className="font-bold text-amber-800 text-sm">Ganesh Dahal</p> <p className="text-xs text-gray-600">Ganesh Dahal (Chairman)</p> </div> <div className="text-center"> <div className="w-24 h-1 bg-amber-600 mx-auto mb-1"></div> <p className="font-bold text-amber-800 text-sm">{date}</p> <p className="text-xs text-gray-600">Date</p> </div> </div> </div> </div> </div> </div> <div className="p-3 bg-white border-t sticky bottom-0"> <div className="flex flex-col gap-2"> <button onClick={handleDownload} className="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center gap-2"> <i className="fas fa-download"></i> DOWNLOAD CERTIFICATE </button> <button onClick={onClose} className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-4 rounded-lg"> CLOSE </button> </div> </div> </div> </div> ); };
+
+
+   
     
     // =================================================================================
     // ===== MAIN APP COMPONENT =====
